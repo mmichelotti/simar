@@ -1,0 +1,39 @@
+body {
+  direction: rtl;
+  unicode-bidi: embed;
+}
+
+/* Arrows (flip/change) */
+
+.anps_menu_widget .menu a:before,
+.breadcrumb li:before {
+  content: "\f104";
+}
+
+.page-numbers i {
+  position: relative;
+  transform: scaleX(-1);
+}
+
+.testimonials .testimonial-owl-nav button,
+.recent-news .owl-nav > span,
+.projects-pagination > button {
+  transform: scaleX(-1);
+}
+
+@media (max-width: 1199px) {
+  .site-navigation .main-menu li ul li a:before {
+    content: "\f104";
+    float: right;
+  }
+}
+
+/* Swipebox fix */
+
+html.swipebox-html {
+  overflow: hidden !important;
+}
+
+html.swipebox-html #swipebox-overlay{
+  direction: ltr;
+}
