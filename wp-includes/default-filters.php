@@ -169,6 +169,8 @@ add_filter( 'widget_text_content', 'capital_P_dangit', 11 );
 add_filter( 'widget_text_content', 'wptexturize'          );
 add_filter( 'widget_text_content', 'convert_smilies',  20 );
 add_filter( 'widget_text_content', 'wpautop'              );
+add_filter( 'widget_text_content', 'shortcode_unautop'    );
+add_filter( 'widget_text_content', 'do_shortcode',     11 ); // Runs after wpautop(); note that $post global will be null when shortcodes run.
 
 add_filter( 'date_i18n', 'wp_maybe_decline_date' );
 
@@ -463,6 +465,11 @@ add_filter( 'nav_menu_item_id', '_nav_menu_item_id_use_once', 10, 2 );
 
 // Widgets
 add_action( 'init', 'wp_widgets_init', 1 );
+
+// User counts
+foreach ( array( 'user_register', 'deleted_user' ) as $action ){
+	add_action( $action, 'wp_update_active_user_count' );
+}
 
 // Admin Bar
 // Don't remove. Wrong way to disable.

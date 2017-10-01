@@ -105,7 +105,10 @@ themes.view.Appearance = wp.Backbone.View.extend({
 		view.render();
 		this.searchContainer
 			.append( $.parseHTML( '<label class="screen-reader-text" for="wp-filter-search-input">' + l10n.search + '</label>' ) )
-			.append( view.el );
+			.append( view.el )
+			.on( 'submit', function( event ) {
+				event.preventDefault();
+			});
 	},
 
 	// Checks when the user gets close to the bottom
@@ -1600,7 +1603,11 @@ themes.view.Installer = themes.view.Appearance.extend({
 		this.listenTo( this.collection, 'query:fail', function() {
 			$( 'body' ).removeClass( 'loading-content' );
 			$( '.theme-browser' ).find( 'div.error' ).remove();
-			$( '.theme-browser' ).find( 'div.themes' ).before( '<div class="error"><p>' + l10n.error + '</p></div>' );
+			$( '.theme-browser' ).find( 'div.themes' ).before( '<div class="error"><p>' + l10n.error + '</p><p><button class="button try-again">' + l10n.tryAgain + '</button></p></div>' ); 
+			$( '.theme-browser .error .try-again' ).on( 'click', function( e ) { 
+				e.preventDefault(); 
+				$( 'input.wp-filter-search' ).trigger( 'input' ); 
+			} );
 		});
 
 		if ( this.view ) {

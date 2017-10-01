@@ -120,6 +120,7 @@ function create_initial_taxonomies() {
 			'separate_items_with_commas' => null,
 			'add_or_remove_items' => null,
 			'choose_from_most_used' => null,
+			'back_to_items' => __( '&larr; Back to Link Categories' ),
 		),
 		'capabilities' => array(
 			'manage_terms' => 'manage_links',
@@ -452,7 +453,7 @@ function unregister_taxonomy( $taxonomy ) {
  * @since 3.0.0
  * @since 4.3.0 Added the `no_terms` label.
  * @since 4.4.0 Added the `items_list_navigation` and `items_list` labels.
- * @since 4.9.0 Added the `most_used` label.
+ * @since 4.9.0 Added the `most_used` and `back_to_items` labels.
  *
  * @param WP_Taxonomy $tax Taxonomy object.
  * @return object {
@@ -489,6 +490,7 @@ function unregister_taxonomy( $taxonomy ) {
  *     @type string $items_list                 Label for the table hidden heading.
  *     @type string $most_used                  Title used for the Most Used panel. Not used for non-hierarchical
  *                                              taxonomies. Default 'Most Used'.
+ *     @type string $back_to_items              Label displayed after a term has been updated.
  * }
  */
 function get_taxonomy_labels( $tax ) {
@@ -521,6 +523,7 @@ function get_taxonomy_labels( $tax ) {
 		'items_list_navigation' => array( __( 'Tags list navigation' ), __( 'Categories list navigation' ) ),
 		'items_list' => array( __( 'Tags list' ), __( 'Categories list' ) ),
 		'most_used' => array( null, __( 'Most Used' ) ),
+		'back_to_items' => array( __( '&larr; Back to Tags' ), __( '&larr; Back to Categories' ) ),
 	);
 	$nohier_vs_hier_defaults['menu_name'] = $nohier_vs_hier_defaults['name'];
 
@@ -726,7 +729,6 @@ function get_tax_sql( $tax_query, $primary_table, $primary_id_column ) {
  * @since 4.4.0 Converted to return a WP_Term object if `$output` is `OBJECT`.
  *              The `$taxonomy` parameter was made optional.
  *
- * @global wpdb $wpdb WordPress database abstraction object.
  * @see sanitize_term_field() The $context param lists the available values for get_term_by() $filter param.
  *
  * @param int|WP_Term|object $term If integer, term data will be fetched from the database, or from the cache if
@@ -836,7 +838,6 @@ function get_term( $term, $taxonomy = '', $output = OBJECT, $filter = 'raw' ) {
  * @since 4.4.0 `$taxonomy` is optional if `$field` is 'term_taxonomy_id'. Converted to return
  *              a WP_Term object if `$output` is `OBJECT`.
  *
- * @global wpdb $wpdb WordPress database abstraction object.
  * @see sanitize_term_field() The $context param lists the available values for get_term_by() $filter param.
  *
  * @param string     $field    Either 'slug', 'name', 'id' (term_id), or 'term_taxonomy_id'
@@ -1046,9 +1047,6 @@ function get_term_to_edit( $id, $taxonomy ) {
  *
  * @internal The `$deprecated` parameter is parsed for backward compatibility only.
  *
- * @global wpdb  $wpdb WordPress database abstraction object.
- * @global array $wp_filter
- *
  * @param string|array $args       Optional. Array or string of arguments. See WP_Term_Query::__construct()
  *                                 for information on accepted arguments. Default empty.
  * @param array        $deprecated Argument array, when using the legacy function parameter format. If present, this
@@ -1058,8 +1056,6 @@ function get_term_to_edit( $id, $taxonomy ) {
  *                            do not exist.
  */
 function get_terms( $args = array(), $deprecated = '' ) {
-	global $wpdb;
-
 	$term_query = new WP_Term_Query();
 
 	$defaults = array(
@@ -1854,8 +1850,6 @@ function wp_delete_category( $cat_ID ) {
  *              'all_with_object_id', an array of `WP_Term` objects will be returned.
  * @since 4.7.0 Refactored to use WP_Term_Query, and to support any WP_Term_Query arguments.
  *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
  * @param int|array    $object_ids The ID(s) of the object(s) to retrieve.
  * @param string|array $taxonomies The taxonomies to retrieve terms from.
  * @param array|string $args       See WP_Term_Query::__construct() for supported arguments.
@@ -1863,8 +1857,6 @@ function wp_delete_category( $cat_ID ) {
  *                        WP_Error if any of the $taxonomies don't exist.
  */
 function wp_get_object_terms($object_ids, $taxonomies, $args = array()) {
-	global $wpdb;
-
 	if ( empty( $object_ids ) || empty( $taxonomies ) )
 		return array();
 
@@ -3796,7 +3788,7 @@ function _wp_check_split_terms_in_menus( $term_id, $new_term_id, $term_taxonomy_
 			INNER JOIN {$wpdb->postmeta} AS m2 ON ( m2.post_id = m1.post_id )
 			INNER JOIN {$wpdb->postmeta} AS m3 ON ( m3.post_id = m1.post_id )
 		WHERE ( m1.meta_key = '_menu_item_type' AND m1.meta_value = 'taxonomy' )
-			AND ( m2.meta_key = '_menu_item_object' AND m2.meta_value = '%s' )
+			AND ( m2.meta_key = '_menu_item_object' AND m2.meta_value = %s )
 			AND ( m3.meta_key = '_menu_item_object_id' AND m3.meta_value = %d )",
 		$taxonomy,
 		$term_id
@@ -3886,7 +3878,7 @@ function wp_get_split_term( $old_term_id, $taxonomy ) {
  *
  * @param int $term_id Term ID.
  * @return bool Returns false if a term is not shared between multiple taxonomies or
- *              if splittng shared taxonomy terms is finished. 
+ *              if splittng shared taxonomy terms is finished.
  */
 function wp_term_is_shared( $term_id ) {
 	global $wpdb;

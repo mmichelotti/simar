@@ -963,7 +963,7 @@ function wp_ajax_get_tagcloud() {
 	}
 
 	// We need raw tag names here, so don't filter the output
-	$return = wp_generate_tag_cloud( $tags, array('filter' => 0) );
+	$return = wp_generate_tag_cloud( $tags, array( 'filter' => 0, 'format' => 'list' ) );
 
 	if ( empty($return) )
 		wp_die( 0 );
@@ -3189,28 +3189,6 @@ function wp_ajax_destroy_sessions() {
 }
 
 /**
- * Ajax handler for saving a post from Press This.
- *
- * @since 4.2.0
- */
-function wp_ajax_press_this_save_post() {
-	include( ABSPATH . 'wp-admin/includes/class-wp-press-this.php' );
-	$wp_press_this = new WP_Press_This();
-	$wp_press_this->save_post();
-}
-
-/**
- * Ajax handler for creating new category from Press This.
- *
- * @since 4.2.0
- */
-function wp_ajax_press_this_add_category() {
-	include( ABSPATH . 'wp-admin/includes/class-wp-press-this.php' );
-	$wp_press_this = new WP_Press_This();
-	$wp_press_this->add_category();
-}
-
-/**
  * Ajax handler for cropping an image.
  *
  * @since 4.3.0
@@ -3485,12 +3463,18 @@ function wp_ajax_update_theme() {
 	$status     = array(
 		'update'     => 'theme',
 		'slug'       => $stylesheet,
+		'oldVersion' => '',
 		'newVersion' => '',
 	);
 
 	if ( ! current_user_can( 'update_themes' ) ) {
 		$status['errorMessage'] = __( 'Sorry, you are not allowed to update themes for this site.' );
 		wp_send_json_error( $status );
+	}
+
+	$theme = wp_get_theme( $stylesheet );
+	if ( $theme->exists() ) {
+		$status['oldVersion'] = $theme->get( 'Version' );
 	}
 
 	include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
@@ -3524,7 +3508,7 @@ function wp_ajax_update_theme() {
 		}
 
 		$theme = wp_get_theme( $stylesheet );
-		if ( $theme->get( 'Version' ) ) {
+		if ( $theme->exists() ) {
 			$status['newVersion'] = $theme->get( 'Version' );
 		}
 
