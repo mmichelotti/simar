@@ -487,7 +487,7 @@ a:active {
 }
 
 .main-navigation li:hover > a {
-	color: #ED564B;
+	color: #3187c3;
 }
 .main-navigation ul ul :hover > a {
 }
@@ -500,7 +500,7 @@ a:active {
 .main-navigation li.current_page_item > a,
 .main-navigation li.current-menu-item > a,
 .main-navigation li.current-menu-ancestor > a{
-	color: #ED564B;
+	color: #3187c3;
 }
 
 /* Small menu */
