@@ -1633,3 +1633,7 @@ div#wp-custom-header:hover .wp-custom-header-video-button {
 .wp-custom-header-video-button.wp-custom-header-video-pause:before{
 	content: '\f04c';
 }
+
+.header-logo-image {
+	margin-top: 20px;
+}
